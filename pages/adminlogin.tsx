@@ -32,7 +32,7 @@ export default function AdminLoginPage() {
   return (
     <AuthCard title="Admin Login">
       <form onSubmit={handleSubmit} className="flex flex-col gap-[15px]">
-        <AuthInput type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} />
+        <AuthInput type="text" autoComplete="username" placeholder="Admin email or username" value={email} onChange={(e) => setEmail(e.target.value)} />
         <AuthInput type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} />
         <AuthButton type="submit" disabled={loading}>
           {loading ? "Logging in..." : "Login"}

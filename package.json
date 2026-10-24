@@ -4,20 +4,15 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "prisma generate && next build",
+    "build": "next build",
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
-    "postinstall": "prisma generate",
-    "db:migrate": "prisma migrate dev",
-    "db:deploy": "prisma migrate deploy",
-    "db:seed": "prisma db seed",
-    "db:studio": "prisma studio"
+    "db:seed": "tsx scripts/seed.ts"
   },
   "dependencies": {
     "@heroicons/react": "^2.2.0",
-    "@prisma/adapter-pg": "^7.10.1",
-    "@prisma/client": "^7.10.1",
+    "@supabase/supabase-js": "^2.118.0",
     "framer-motion": "^12.23.12",
     "lucide-react": "^0.541.0",
     "next": "15.4.6",
@@ -36,7 +31,6 @@
     "dotenv": "^18.0.9",
     "eslint": "^9",
     "eslint-config-next": "15.4.6",
-    "prisma": "^7.10.1",
     "tailwindcss": "^4",
     "tsx": "^4.23.15",
     "typescript": "^5.9.2"

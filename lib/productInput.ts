@@ -1,6 +1,6 @@
-import { Prisma } from "@/generated/prisma/client";
 import { str } from "@/lib/api";
 import { isCategory, isValidSubcategory, parseFeatures } from "@/lib/products";
+import type { Database } from "@/types/supabase";
 
 const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
 const IMAGE_DATA_URL = /^data:(image\/(?:png|jpe?g|webp|gif));base64,(.+)$/;
@@ -11,7 +11,7 @@ export interface ParsedImage {
 }
 
 export type ProductInput = {
-  data: Omit<Prisma.ProductCreateInput, "image" | "orderItems">;
+  data: Database["public"]["Tables"]["products"]["Insert"];
   image: ParsedImage | null;
 };
 
@@ -62,13 +62,10 @@ export function parseProductInput(body: unknown): ProductInput | string {
       price,
       stock,
       overview: str(b.overview) || null,
-      stylingTip: str(b.stylingTip) || null,
-      features: features ?? Prisma.DbNull,
-      imageUrl: str(b.imageUrl) || null,
+      styling_tip: str(b.stylingTip) || null,
+      features,
+      image_url: str(b.imageUrl) || null,
     },
     image,
   };
 }
-
-export const productImageUrl = (productId: number) =>
-  `/api/product-images/${productId}?v=${Date.now()}`;

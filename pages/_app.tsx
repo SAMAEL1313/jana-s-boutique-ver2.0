@@ -1,5 +1,6 @@
 import "@/styles/globals.css";
 import type { AppProps } from "next/app";
+import Head from "next/head";
 import { Cormorant_Garamond, EB_Garamond } from "next/font/google";
 import { AuthProvider } from "@/context/AuthContext";
 import { CartProvider } from "@/context/CartContext";
@@ -19,6 +20,9 @@ const body = EB_Garamond({
 export default function App({ Component, pageProps }: AppProps) {
   return (
     <div className={`${heading.variable} ${body.variable} min-h-screen font-serif`}>
+      <Head>
+        <title>Online Boutique</title>
+      </Head>
       <CartProvider>
         <AuthProvider>
           <Component {...pageProps} />

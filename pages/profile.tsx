@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
+import AccountSettings from "@/components/AccountSettings";
 import ProductPhoto from "@/components/ProductPhoto";
 import ProfileDropdown from "@/components/ProfileDropdown";
 import ThemeToggle from "@/components/ThemeToggle";
@@ -14,6 +15,9 @@ export default function Profile() {
   const [orders, setOrders] = useState<OrderDTO[]>([]);
   const [ordersLoading, setOrdersLoading] = useState(true);
   const [zoomAnim, setZoomAnim] = useState(false);
+  const tab = router.query.tab === "account" ? "account" : "orders";
+  const showTab = (next: "orders" | "account") =>
+    router.replace({ pathname: "/profile", query: next === "account" ? { tab: next } : {} }, undefined, { shallow: true });
 
   useEffect(() => {
     if (loading) return;
@@ -48,21 +52,38 @@ export default function Profile() {
               >
                 Shop
               </button>
-              <span className="text-ink">Orders</span>
+              {(["orders", "account"] as const).map((t) => (
+                <button
+                  key={t}
+                  onClick={() => showTab(t)}
+                  aria-current={tab === t ? "page" : undefined}
+                  className={`link-underline cursor-pointer transition-colors hover:text-gold ${tab === t ? "text-ink after:w-full" : "text-muted"}`}
+                >
+                  {t === "orders" ? "Orders" : "Account"}
+                </button>
+              ))}
             </nav>
           </div>
           <div className="flex items-center gap-4">
             <ThemeToggle />
-            <ProfileDropdown email={currentUser.email} onSignOut={() => logout("/")} />
+            <ProfileDropdown
+              email={currentUser.email}
+              onSignOut={() => logout("/")}
+              onAccountSettings={() => showTab("account")}
+            />
           </div>
         </div>
       </header>
 
       <main className="mx-auto w-full max-w-4xl px-6 pt-36 pb-20">
         <p className="eyebrow">Welcome back, {currentUser.firstName}</p>
-        <h1 className="mt-2 mb-10 font-display text-5xl font-medium">Order History</h1>
+        <h1 className="mt-2 mb-10 font-display text-5xl font-medium">
+          {tab === "account" ? "Account Settings" : "Order History"}
+        </h1>
 
-        {ordersLoading ? (
+        {tab === "account" ? (
+          <AccountSettings key={currentUser.id} user={currentUser} />
+        ) : ordersLoading ? (
           <p className="text-muted italic">Loading orders...</p>
         ) : orders.length === 0 ? (
           <div className="card flex h-64 flex-col items-center justify-center gap-4 text-center">

@@ -5,10 +5,12 @@ import { FaChevronDown } from "react-icons/fa";
 interface Props {
   email: string | undefined;
   onSignOut: () => void;
+  /** Shows an "Account settings" item when given. */
+  onAccountSettings?: () => void;
 }
 
 /** Person icon with a dropdown showing the account email and a sign-out button. */
-export default function ProfileDropdown({ email, onSignOut }: Props) {
+export default function ProfileDropdown({ email, onSignOut, onAccountSettings }: Props) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
@@ -39,6 +41,17 @@ export default function ProfileDropdown({ email, onSignOut }: Props) {
             <BsPerson size={16} />
             <span className="truncate">{email}</span>
           </div>
+          {onAccountSettings && (
+            <button
+              onClick={() => {
+                setOpen(false);
+                onAccountSettings();
+              }}
+              className="cursor-pointer rounded-sm px-3 py-2 text-left text-ink transition-colors hover:bg-surface-2 hover:text-accent"
+            >
+              Account settings
+            </button>
+          )}
           <button
             onClick={onSignOut}
             className="cursor-pointer rounded-sm px-3 py-2 text-left text-ink transition-colors hover:bg-surface-2 hover:text-accent"

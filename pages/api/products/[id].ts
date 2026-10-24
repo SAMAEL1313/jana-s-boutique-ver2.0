@@ -1,8 +1,9 @@
 import { apiHandler } from "@/lib/api";
 import { requireAdmin } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
-import { parseProductInput, productImageUrl } from "@/lib/productInput";
+import { removeProductImages, uploadProductImage } from "@/lib/productImages";
+import { parseProductInput } from "@/lib/productInput";
 import { serializeProduct } from "@/lib/products";
+import { supabase, unwrap } from "@/lib/supabase";
 
 export const config = { api: { bodyParser: { sizeLimit: "8mb" } } };
 
@@ -21,21 +22,19 @@ export default apiHandler({
     if (typeof input === "string") {
       return res.status(400).json({ success: false, message: input });
     }
-    if (!(await prisma.product.findUnique({ where: { id }, select: { id: true } }))) {
+    if (!unwrap(await supabase.from("products").select("id").eq("id", id).maybeSingle())) {
       return res.status(404).json({ success: false, message: "Product not found." });
     }
 
-    const product = await prisma.$transaction(async (tx) => {
-      if (input.image) {
-        await tx.productImage.upsert({
-          where: { productId: id },
-          create: { productId: id, ...input.image },
-          update: input.image,
-        });
-        input.data.imageUrl = productImageUrl(id);
-      }
-      return tx.product.update({ where: { id }, data: input.data });
-    });
+    if (input.image) {
+      input.data.image_url = await uploadProductImage(id, input.image);
+    }
+    const product = unwrap(await supabase.from("products").update(input.data).eq("id", id).select().single());
+
+    // Clean up photos that are no longer used (replaced, or image URL changed).
+    await removeProductImages(id, product.image_url).catch((err) =>
+      console.error(`Failed to clean up images for product ${id}:`, err)
+    );
 
     return res.status(200).json({ success: true, product: serializeProduct(product) });
   },
@@ -46,8 +45,12 @@ export default apiHandler({
     if (!id) return res.status(400).json({ success: false, message: "Invalid product id." });
 
     // Past order items keep their name/price snapshot; product_id is set to NULL.
-    const { count } = await prisma.product.deleteMany({ where: { id } });
-    if (!count) return res.status(404).json({ success: false, message: "Product not found." });
+    const deleted = unwrap(await supabase.from("products").delete().eq("id", id).select("id"));
+    if (!deleted.length) return res.status(404).json({ success: false, message: "Product not found." });
+
+    await removeProductImages(id).catch((err) =>
+      console.error(`Failed to clean up images for product ${id}:`, err)
+    );
 
     return res.status(200).json({ success: true });
   },

@@ -27,7 +27,8 @@ const emptyInfo = {
 };
 type ShippingInfo = typeof emptyInfo;
 
-const savedInfoKey = (email: string) => `savedCheckoutInfo_${email}`;
+// Older versions kept the address in localStorage under this key; it now lives on the account.
+const legacySavedInfoKey = (email: string) => `savedCheckoutInfo_${email}`;
 
 const inputClass = "input-field";
 
@@ -39,22 +40,26 @@ export default function Checkout() {
   const [info, setInfo] = useState<ShippingInfo>(emptyInfo);
   const [selectedPayment, setSelectedPayment] = useState("GCash");
   const [countryOpen, setCountryOpen] = useState(false);
-  const [rememberMe, setRememberMe] = useState(false);
+  const [saveAddress, setSaveAddress] = useState(false);
   const [alert, setAlert] = useState("");
   const [showGcashModal, setShowGcashModal] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
 
   const setField = (field: keyof ShippingInfo) => (value: string) => setInfo((prev) => ({ ...prev, [field]: value }));
 
-  // Load saved shipping info for this user (per-browser convenience only)
+  // Pre-fill the address saved on the account; offer to save one if there isn't any.
   useEffect(() => {
-    if (!currentUser) return;
+    if (!currentUser || currentUser.isAdmin) return;
     try {
-      const saved = JSON.parse(localStorage.getItem(savedInfoKey(currentUser.email)) || "{}");
-      setInfo((prev) => ({ ...prev, ...saved }));
+      localStorage.removeItem(legacySavedInfoKey(currentUser.email));
     } catch {
-      // ignore unreadable saved info
+      // ignore
     }
+    api<{ shippingAddress: ShippingInfo | null }>("/api/account").then((data) => {
+      if (!data.success) return;
+      if (data.shippingAddress) setInfo(data.shippingAddress);
+      setSaveAddress(!data.shippingAddress);
+    });
   }, [currentUser]);
 
   useEffect(() => {
@@ -85,18 +90,11 @@ export default function Checkout() {
   const processOrder = async () => {
     if (!currentUser) return setAlert("You must be logged in to place an order.");
 
-    if (rememberMe) {
-      try {
-        localStorage.setItem(savedInfoKey(currentUser.email), JSON.stringify(info));
-      } catch {
-        // storage unavailable — skip saving
-      }
-    }
-
     setIsProcessing(true);
     const data = await api<{ order: OrderDTO }>("/api/checkout", {
       body: {
         ...info,
+        saveAddress,
         paymentMethod: selectedPayment,
         items: cartItems.map((item) => ({ productId: item.id, quantity: item.quantity, size: item.size })),
       },
@@ -114,15 +112,8 @@ export default function Checkout() {
 
   const handleCancel = () => {
     clearCart();
-    if (currentUser) {
-      try {
-        localStorage.removeItem(savedInfoKey(currentUser.email));
-      } catch {
-        // ignore
-      }
-    }
     setInfo(emptyInfo);
-    setRememberMe(false);
+    setSaveAddress(false);
   };
 
   return (
@@ -222,11 +213,11 @@ export default function Checkout() {
               <label className="flex cursor-pointer items-center gap-2 text-muted">
                 <input
                   type="checkbox"
-                  checked={rememberMe}
-                  onChange={(e) => setRememberMe(e.target.checked)}
+                  checked={saveAddress}
+                  onChange={(e) => setSaveAddress(e.target.checked)}
                   className="accent-[var(--accent)]"
                 />
-                <span className="text-sm">Save my information for faster checkout</span>
+                <span className="text-sm">Save this address to my account for next time</span>
               </label>
 
               <button onClick={handlePayNow} disabled={isProcessing} className="btn w-full py-3.5">
@@ -282,7 +273,7 @@ export default function Checkout() {
           <div className="card w-full max-w-sm overflow-hidden shadow-2xl">
             <div className="border-b border-line bg-surface-2 p-5 text-center">
               <h2 className="font-display text-2xl font-medium">Pay with GCash</h2>
-              <span className="text-sm text-muted">Jana&apos;s Boutique | janas.work.ph</span>
+              <span className="text-sm text-muted">Online Boutique | janas.work.ph</span>
             </div>
 
             <div className="space-y-4 p-6 text-center">

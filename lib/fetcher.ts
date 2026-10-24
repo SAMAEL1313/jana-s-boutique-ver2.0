@@ -13,6 +13,9 @@ export async function api<T = object>(
       body: hasBody ? JSON.stringify(options.body) : undefined,
       credentials: "same-origin",
     });
+    if (!res.headers.get("content-type")?.includes("application/json")) {
+      return { success: false, message: `Server error (${res.status}). Please try again.` };
+    }
     return (await res.json()) as ApiResult<T>;
   } catch (err) {
     return {

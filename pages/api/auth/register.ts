@@ -1,6 +1,7 @@
 import { apiHandler, EMAIL_PATTERN, str } from "@/lib/api";
-import { hashPassword } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
+import { hashPassword, isAdminEmail } from "@/lib/auth";
+import { checkRateLimits, clientIp, limits } from "@/lib/rateLimit";
+import { supabase, unwrap } from "@/lib/supabase";
 
 export default apiHandler({
   async POST(req, res) {
@@ -19,14 +20,21 @@ export default apiHandler({
       return res.status(400).json({ success: false, message: "Password must be at least 8 characters." });
     }
 
-    const existing = await prisma.user.findUnique({ where: { email } });
-    if (existing) {
+    if (!(await checkRateLimits(res, limits.registerIp(clientIp(req))))) return;
+
+    const existing = unwrap(await supabase.from("users").select("id").eq("email", email).maybeSingle());
+    if (existing || isAdminEmail(email)) {
       return res.status(409).json({ success: false, message: "An account with this email already exists." });
     }
 
-    await prisma.user.create({
-      data: { firstName, lastName, email, passwordHash: await hashPassword(password) },
-    });
+    unwrap(
+      await supabase.from("users").insert({
+        first_name: firstName,
+        last_name: lastName,
+        email,
+        password_hash: await hashPassword(password),
+      })
+    );
 
     return res.status(201).json({ success: true });
   },

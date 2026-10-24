@@ -35,6 +35,17 @@ export interface SessionUser {
   isAdmin: boolean;
 }
 
+export interface ShippingAddress {
+  firstName: string;
+  lastName: string;
+  address: string;
+  city: string;
+  province: string;
+  zip: string;
+  phone: string;
+  country: string;
+}
+
 export interface OrderItemDTO {
   id: number;
   productId: number | null;

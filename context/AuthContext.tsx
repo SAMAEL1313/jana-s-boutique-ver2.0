@@ -10,6 +10,8 @@ interface AuthContextValue {
   loading: boolean;
   login: (user: SessionUser) => void;
   logout: (redirectTo?: string) => Promise<void>;
+  /** Replaces the signed-in user's details after they edit their account. */
+  updateUser: (user: SessionUser) => void;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -48,14 +50,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const logout = useCallback(
     async (redirectTo = "/auth") => {
       await api("/api/auth/logout", { method: "POST" });
+      // Leave the page first: protected pages redirect to login as soon as the
+      // user is cleared, which would cancel this navigation.
+      await router.replace(redirectTo);
       setCurrentUser(null);
-      router.replace(redirectTo);
     },
     [router]
   );
 
   return (
-    <AuthContext.Provider value={{ currentUser, isLoggedIn: !!currentUser, loading, login, logout }}>
+    <AuthContext.Provider
+      value={{ currentUser, isLoggedIn: !!currentUser, loading, login, logout, updateUser: setCurrentUser }}
+    >
       {children}
     </AuthContext.Provider>
   );

@@ -95,7 +95,7 @@ export default function Navbar() {
       <div
         className={`flex justify-center overflow-hidden transition-all duration-500 ${showTitle ? "max-h-24 pt-5 opacity-100" : "max-h-0 pt-0 opacity-0"}`}
       >
-        <Link href={isAdmin ? "/admindashboard" : "/"} aria-label="Jana's Boutique home">
+        <Link href={isAdmin ? "/admindashboard" : "/"} aria-label="Online Boutique home">
           <Wordmark />
         </Link>
       </div>

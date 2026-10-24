@@ -5,7 +5,7 @@ export default function Wordmark({ size = "md" }: { size?: "sm" | "md" | "lg" })
 
   return (
     <span className="inline-flex flex-col items-center leading-none">
-      <span className={`font-display font-medium tracking-[0.12em] ${name}`}>JANA&rsquo;S</span>
+      <span className={`font-display font-medium tracking-[0.12em] ${name}`}>ONLINE</span>
       <span className={`mt-1 font-display tracking-[0.6em] text-gold uppercase ${sub}`}>boutique</span>
     </span>
   );

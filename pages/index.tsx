@@ -45,7 +45,7 @@ export default function Home() {
       <section className="relative h-screen w-full overflow-hidden">
         <Image
           src="/images/homepage.jpg"
-          alt="Inside Jana's Boutique"
+          alt="Inside Online Boutique"
           fill
           className="object-cover object-center sepia-[0.25]"
           priority
@@ -181,7 +181,7 @@ export default function Home() {
         </div>
 
         <div className="mx-auto mt-12 max-w-6xl border-t border-[#3b3026] px-6 pt-6 text-center text-sm text-[#e6dccb]/60">
-          © {new Date().getFullYear()} Jana&apos;s Boutique — All rights reserved.
+          © {new Date().getFullYear()} Online Boutique — All rights reserved.
         </div>
       </footer>
     </div>

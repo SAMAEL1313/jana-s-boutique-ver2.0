@@ -16,7 +16,7 @@ function getTransporter() {
 
 export async function sendMail(to: string, subject: string, html: string) {
   return getTransporter().sendMail({
-    from: `"Jana Boutique" <${process.env.GMAIL_USER}>`,
+    from: `"Online Boutique" <${process.env.GMAIL_USER}>`,
     to,
     subject,
     html,
@@ -34,14 +34,14 @@ export function emailLayout(body: string) {
   <div style="background: #f2e9e4; padding: 40px; font-family: 'Segoe UI', sans-serif;">
     <div style="max-width: 560px; margin: auto; background: #ffffff; padding: 40px 30px; border-radius: 16px; box-shadow: 0 6px 20px rgba(0,0,0,0.08); border: 1px solid #f0d9cb;">
       <div style="text-align: center; margin-bottom: 20px;">
-        <h1 style="font-size: 28px; font-weight: 700; color: #b88e5a; letter-spacing: 1px; margin: 0;">Jana’s Boutique</h1>
+        <h1 style="font-size: 28px; font-weight: 700; color: #b88e5a; letter-spacing: 1px; margin: 0;">Online Boutique</h1>
         <p style="color: #d6a77a; margin-top: 5px; font-size: 14px;">Elegance made personal.</p>
       </div>
       ${body}
       <hr style="margin: 35px 0; border: none; border-top: 1px solid #eee;">
       <p style="font-size: 12px; color: #999; text-align: center; line-height: 1.5;">
         This is an automated email — kindly do not reply. <br>
-        © ${new Date().getFullYear()} Jana’s Boutique • All Rights Reserved
+        © ${new Date().getFullYear()} Online Boutique • All Rights Reserved
       </p>
     </div>
   </div>`;

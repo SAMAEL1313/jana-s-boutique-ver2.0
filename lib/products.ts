@@ -1,5 +1,5 @@
-import type { Product as ProductRow } from "@/generated/prisma/client";
 import type { Category, Product } from "@/types";
+import type { Row } from "@/types/supabase";
 
 export const SHIPPING_COST = 100;
 
@@ -42,7 +42,7 @@ export function parseFeatures(value: unknown): Record<string, number> | null {
   return entries.length ? Object.fromEntries(entries) : null;
 }
 
-export function serializeProduct(row: ProductRow): Product {
+export function serializeProduct(row: Row<"products">): Product {
   return {
     id: row.id,
     name: row.name,
@@ -53,8 +53,8 @@ export function serializeProduct(row: ProductRow): Product {
     stock: row.stock,
     overview: row.overview,
     features: parseFeatures(row.features),
-    stylingTip: row.stylingTip,
-    imageUrl: row.imageUrl,
+    stylingTip: row.styling_tip,
+    imageUrl: row.image_url,
   };
 }
 

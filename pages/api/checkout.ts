@@ -2,13 +2,15 @@ import crypto from "node:crypto";
 import { apiHandler, str } from "@/lib/api";
 import { requireUser } from "@/lib/auth";
 import { receiptEmail, sendMail } from "@/lib/mailer";
-import { serializeOrder } from "@/lib/orders";
-import { prisma } from "@/lib/prisma";
-import { parseFeatures, SHIPPING_COST } from "@/lib/products";
-
-class CheckoutError extends Error {}
+import { ORDER_WITH_ITEMS, serializeOrder } from "@/lib/orders";
+import { SHIPPING_COST } from "@/lib/products";
+import { parseShippingAddress } from "@/lib/shippingAddress";
+import { supabase, unwrap } from "@/lib/supabase";
 
 const PAYMENT_METHODS = ["GCash"];
+
+/** SQLSTATE that `place_order` raises for problems the customer should see. */
+const CHECKOUT_ERROR = "JB409";
 
 export default apiHandler({
   async POST(req, res) {
@@ -16,18 +18,9 @@ export default apiHandler({
     if (!user) return;
 
     const b = req.body ?? {};
-    const shipping = {
-      firstName: str(b.firstName),
-      lastName: str(b.lastName),
-      address: str(b.address),
-      city: str(b.city),
-      province: str(b.province),
-      zip: str(b.zip),
-      phone: str(b.phone),
-      country: str(b.country) || "Philippines",
-    };
-    if (Object.values(shipping).some((v) => !v)) {
-      return res.status(400).json({ success: false, message: "Please fill in all required fields!" });
+    const shipping = parseShippingAddress(b);
+    if (typeof shipping === "string") {
+      return res.status(400).json({ success: false, message: shipping });
     }
 
     const paymentMethod = str(b.paymentMethod);
@@ -49,68 +42,42 @@ export default apiHandler({
       return res.status(400).json({ success: false, message: "Your cart is empty!" });
     }
 
-    try {
-      const order = await prisma.$transaction(async (tx) => {
-        const products = await tx.product.findMany({
-          where: { id: { in: requested.map((i) => i.productId) } },
-        });
-        const byId = new Map(products.map((p) => [p.id, p]));
-
-        const items = [];
-        for (const line of requested) {
-          const product = byId.get(line.productId);
-          if (!product) throw new CheckoutError("A product in your cart is no longer available.");
-
-          // Decrement only if enough stock remains, so concurrent orders can't oversell.
-          const { count } = await tx.product.updateMany({
-            where: { id: product.id, stock: { gte: line.quantity } },
-            data: { stock: { decrement: line.quantity } },
-          });
-          if (!count) throw new CheckoutError(`Not enough stock for ${product.name}.`);
-
-          // Prices always come from the database, never from the client.
-          const sizePrice = line.size ? parseFeatures(product.features)?.[line.size] : undefined;
-          items.push({
-            productId: product.id,
-            name: product.name,
-            imageUrl: product.imageUrl,
-            size: line.size,
-            quantity: line.quantity,
-            unitPrice: sizePrice ?? Number(product.price),
-          });
-        }
-
-        const subtotal = items.reduce((sum, i) => sum + i.unitPrice * i.quantity, 0);
-
-        return tx.order.create({
-          data: {
-            ...shipping,
-            orderNumber: `ORD-${Date.now()}-${crypto.randomInt(1000, 9999)}`,
-            billingId: `BILL-${crypto.randomInt(100000, 999999)}`,
-            userId: user.id,
-            email: user.email,
-            paymentMethod,
-            shippingCost: SHIPPING_COST,
-            totalAmount: subtotal + SHIPPING_COST,
-            items: { create: items },
-          },
-          include: { items: true },
-        });
-      });
-
-      const dto = serializeOrder(order);
-
-      // The order is already saved; a failed receipt email shouldn't fail checkout.
-      sendMail(dto.email, `Your Jana Boutique receipt — ${dto.orderNumber}`, receiptEmail(dto)).catch((err) =>
-        console.error("Failed to send receipt:", err)
-      );
-
-      return res.status(201).json({ success: true, order: dto });
-    } catch (err) {
-      if (err instanceof CheckoutError) {
-        return res.status(409).json({ success: false, message: err.message });
+    // Stock checks, prices and the order insert all happen in one database
+    // transaction inside place_order (see supabase/migrations).
+    const { data: orderId, error } = await supabase.rpc("place_order", {
+      p_user_id: user.id,
+      p_email: user.email,
+      p_order_number: `ORD-${Date.now()}-${crypto.randomInt(1000, 9999)}`,
+      p_billing_id: `BILL-${crypto.randomInt(100000, 999999)}`,
+      p_shipping: { ...shipping },
+      p_payment_method: paymentMethod,
+      p_shipping_cost: SHIPPING_COST,
+      p_items: requested.map((i) => ({ product_id: i.productId, quantity: i.quantity, size: i.size })),
+    });
+    if (error) {
+      if (error.code === CHECKOUT_ERROR) {
+        return res.status(409).json({ success: false, message: error.message });
       }
-      throw err;
+      throw error;
     }
+
+    const order = unwrap(await supabase.from("orders").select(ORDER_WITH_ITEMS).eq("id", orderId).single());
+    const dto = serializeOrder(order);
+
+    if (b.saveAddress === true && !user.isAdmin) {
+      // Best effort: the order is placed even if remembering the address fails.
+      const { error: saveError } = await supabase
+        .from("users")
+        .update({ shipping_address: { ...shipping } })
+        .eq("id", user.id);
+      if (saveError) console.error("Failed to save shipping address:", saveError);
+    }
+
+    // The order is already saved; a failed receipt email shouldn't fail checkout.
+    sendMail(dto.email, `Your Online Boutique receipt — ${dto.orderNumber}`, receiptEmail(dto)).catch((err) =>
+      console.error("Failed to send receipt:", err)
+    );
+
+    return res.status(201).json({ success: true, order: dto });
   },
 });

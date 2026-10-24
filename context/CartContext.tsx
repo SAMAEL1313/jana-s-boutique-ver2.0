@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 import type { CartItem, Product } from "@/types";
 
 const STORAGE_KEY = "cart";
@@ -17,26 +17,29 @@ const sameLine = (a: Pick<CartItem, "id" | "size">, b: Pick<CartItem, "id" | "si
 
 export function CartProvider({ children }: { children: ReactNode }) {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
-  const loaded = useRef(false);
+  // State, not a ref: saving must wait until a render that already has the
+  // saved cart, or the initial empty cart overwrites it on page load.
+  const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
-      if (saved) setCartItems(JSON.parse(saved));
+      const parsed: unknown = saved ? JSON.parse(saved) : [];
+      if (Array.isArray(parsed)) setCartItems(parsed);
     } catch {
       // Ignore unreadable storage; start with an empty cart.
     }
-    loaded.current = true;
+    setLoaded(true);
   }, []);
 
   useEffect(() => {
-    if (!loaded.current) return;
+    if (!loaded) return;
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(cartItems));
     } catch {
       // Storage may be unavailable (private mode); the cart still works in memory.
     }
-  }, [cartItems]);
+  }, [cartItems, loaded]);
 
   // Stock-safe add to cart
   const addToCart = (product: Product, quantity = 1, size: string | null = null) => {

@@ -67,6 +67,7 @@ export default function QuickViewModal({ product, onClose }: Props) {
   const [size, setSize] = useState<string | null>(sizes.defaultSize);
   const [quantity, setQuantity] = useState(1);
   const [show, setShow] = useState(false);
+  const [justAdded, setJustAdded] = useState(false);
 
   const displayedPrice = (size ? product.features?.[size] : undefined) ?? product.price;
 
@@ -90,6 +91,13 @@ export default function QuickViewModal({ product, onClose }: Props) {
     }
     addToCart({ ...product, price: displayedPrice }, Math.min(qty, product.stock), size);
     return true;
+  };
+
+  const handleAddToBag = () => {
+    if (!add(quantity)) return;
+    // Confirm the add, then close so the updated bag count is visible.
+    setJustAdded(true);
+    setTimeout(handleClose, 900);
   };
 
   const handleBuyNow = () => {
@@ -196,8 +204,8 @@ export default function QuickViewModal({ product, onClose }: Props) {
 
           {!currentUser?.isAdmin && (
             <div className="flex gap-3">
-              <button className="btn flex-1" onClick={() => add(quantity)} disabled={outOfStock}>
-                {outOfStock ? "Out of Stock" : "Add to Bag"}
+              <button className="btn flex-1" onClick={handleAddToBag} disabled={outOfStock || justAdded}>
+                {outOfStock ? "Out of Stock" : justAdded ? "Added to Bag ✓" : "Add to Bag"}
               </button>
               <button className="btn-outline flex-1" onClick={handleBuyNow} disabled={outOfStock}>
                 Buy Now
