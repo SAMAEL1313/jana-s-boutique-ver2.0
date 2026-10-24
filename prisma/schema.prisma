@@ -1,0 +1,99 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id                Int       @id @default(autoincrement())
+  firstName         String    @map("first_name")
+  lastName          String    @map("last_name")
+  email             String    @unique
+  passwordHash      String    @map("password_hash")
+  isAdmin           Boolean   @default(false) @map("is_admin")
+  resetTokenHash    String?   @unique @map("reset_token_hash")
+  resetTokenExpires DateTime? @map("reset_token_expires")
+  createdAt         DateTime  @default(now()) @map("created_at")
+  updatedAt         DateTime  @updatedAt @map("updated_at")
+  orders            Order[]
+
+  @@map("users")
+}
+
+model Product {
+  id          Int          @id @default(autoincrement())
+  name        String
+  /// tops | bottoms | dresses | perfumes | shoes | accessories
+  category    String
+  /// e.g. heels, sandals, bracelets; null for top-level categories
+  subcategory String?
+  price       Decimal      @db.Decimal(10, 2)
+  stock       Int          @default(0)
+  overview    String?
+  /// Optional map of size label -> price (used for perfumes)
+  features    Json?
+  stylingTip  String?      @map("styling_tip")
+  imageUrl    String?      @map("image_url")
+  createdAt   DateTime     @default(now()) @map("created_at")
+  updatedAt   DateTime     @updatedAt @map("updated_at")
+  orderItems  OrderItem[]
+  image       ProductImage?
+
+  @@index([category, subcategory])
+  @@map("products")
+}
+
+/// Uploaded product photos, stored in the database so they survive redeploys.
+model ProductImage {
+  id        Int      @id @default(autoincrement())
+  productId Int      @unique @map("product_id")
+  mimeType  String   @map("mime_type")
+  data      Bytes
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@map("product_images")
+}
+
+model Order {
+  id            Int         @id @default(autoincrement())
+  orderNumber   String      @unique @map("order_number")
+  billingId     String      @map("billing_id")
+  userId        Int?        @map("user_id")
+  email         String
+  firstName     String      @map("first_name")
+  lastName      String      @map("last_name")
+  address       String
+  city          String
+  province      String
+  zip           String
+  phone         String
+  country       String      @default("Philippines")
+  paymentMethod String      @map("payment_method")
+  shippingCost  Decimal     @db.Decimal(10, 2) @map("shipping_cost")
+  totalAmount   Decimal     @db.Decimal(10, 2) @map("total_amount")
+  createdAt     DateTime    @default(now()) @map("purchase_date")
+  user          User?       @relation(fields: [userId], references: [id], onDelete: SetNull)
+  items         OrderItem[]
+
+  @@index([userId])
+  @@map("orders")
+}
+
+model OrderItem {
+  id        Int      @id @default(autoincrement())
+  orderId   Int      @map("order_id")
+  productId Int?     @map("product_id")
+  name      String
+  imageUrl  String?  @map("image_url")
+  size      String?
+  quantity  Int
+  unitPrice Decimal  @db.Decimal(10, 2) @map("unit_price")
+  order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product   Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
+
+  @@index([orderId])
+  @@map("order_items")
+}

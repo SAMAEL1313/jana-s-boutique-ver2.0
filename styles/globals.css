@@ -1,0 +1,118 @@
+@import "tailwindcss";
+
+/* Dark mode follows a `.dark` class on <html> (set by ThemeToggle / the
+   no-flash script in _document), not the OS setting directly. */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ------------------------------------------------------------------
+   Dark academia palette
+   Light: parchment & espresso ink. Dark: library at night.
+   ------------------------------------------------------------------ */
+:root {
+  --paper: #f3ecdf;
+  --surface: #fbf7ef;
+  --surface-2: #ebe1cf;
+  --ink: #2a1f17;
+  --muted: #6c5b49;
+  --line: #d9cab1;
+  --accent: #6b2424;
+  --accent-hover: #551b1b;
+  --accent-ink: #fbf5ea;
+  --gold: #8f6f3b;
+  --forest: #3f4b3b;
+  color-scheme: light;
+}
+
+.dark {
+  --paper: #14100c;
+  --surface: #1e1813;
+  --surface-2: #2a221a;
+  --ink: #ece2cf;
+  --muted: #a8977e;
+  --line: #3b3026;
+  --accent: #a84f48;
+  --accent-hover: #bd615a;
+  --accent-ink: #fbf5ea;
+  --gold: #c9a467;
+  --forest: #8a9b84;
+  color-scheme: dark;
+}
+
+@theme inline {
+  --color-paper: var(--paper);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-ink: var(--accent-ink);
+  --color-gold: var(--gold);
+  --color-forest: var(--forest);
+
+  --font-serif: var(--font-body), "EB Garamond", Georgia, serif;
+  --font-display: var(--font-heading), "Cormorant Garamond", Georgia, serif;
+}
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* ------------------------------------------------------------------
+   Reusable building blocks
+   ------------------------------------------------------------------ */
+@utility btn {
+  @apply inline-flex cursor-pointer items-center justify-center gap-2 rounded-sm bg-accent px-5 py-2.5 font-display text-sm font-semibold tracking-[0.15em] text-accent-ink uppercase transition-colors hover:bg-accent-hover disabled:cursor-not-allowed disabled:opacity-60;
+}
+
+@utility btn-outline {
+  @apply inline-flex cursor-pointer items-center justify-center gap-2 rounded-sm border border-line bg-transparent px-5 py-2.5 font-display text-sm font-semibold tracking-[0.15em] text-ink uppercase transition-colors hover:border-gold hover:text-gold disabled:cursor-not-allowed disabled:opacity-60;
+}
+
+@utility input-field {
+  @apply w-full rounded-sm border border-line bg-paper px-3 py-2.5 text-ink transition-colors placeholder:text-muted focus:border-gold focus:ring-1 focus:ring-gold focus:outline-none;
+}
+
+@utility card {
+  @apply rounded-sm border border-line bg-surface;
+}
+
+@utility eyebrow {
+  @apply font-display text-xs font-semibold tracking-[0.3em] text-gold uppercase;
+}
+
+@utility link-underline {
+  @apply relative after:absolute after:bottom-[-3px] after:left-0 after:h-px after:w-0 after:bg-gold after:transition-all after:duration-300 after:content-[''] hover:after:w-full;
+}
+
+/* ------------------------------------------------------------------
+   Animations
+   ------------------------------------------------------------------ */
+@keyframes slideDown {
+  from { transform: translateY(-10px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { transform: translateY(0); opacity: 1; }
+  to { transform: translateY(-10px); opacity: 0; }
+}
+
+@keyframes zoomIn {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+  100% { transform: scale(1); }
+}
+
+.animate-slideDown { animation: slideDown 0.3s ease forwards; }
+.animate-slideUp { animation: slideUp 0.3s ease forwards; }
+.animate-zoom { animation: zoomIn 0.3s ease forwards; }
+
+/* Themed scrollbar for scrollable panels */
+.custom-scrollbar { scrollbar-width: thin; scrollbar-color: var(--gold) transparent; }
+.custom-scrollbar::-webkit-scrollbar { width: 8px; }
+.custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+.custom-scrollbar::-webkit-scrollbar-thumb { background: var(--gold); border-radius: 10px; }
