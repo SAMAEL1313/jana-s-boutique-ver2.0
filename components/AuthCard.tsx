@@ -14,7 +14,7 @@ export default function AuthCard({ title, children }: { title: string; children:
 
   return (
     <div className="fixed inset-0 z-[1000] flex items-center justify-center overflow-y-auto bg-[url('/images/authbackground.jpg')] bg-cover bg-fixed bg-center p-4">
-      <div className="absolute inset-0 bg-[#1a120c]/55 dark:bg-black/70" />
+      <div className="absolute inset-0 bg-grove/65 dark:bg-black/70" />
       <ThemeToggle className="absolute top-5 right-5 bg-surface/80" />
 
       <div

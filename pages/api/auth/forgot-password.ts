@@ -29,7 +29,7 @@ export default apiHandler({
           .eq("id", user.id)
       );
       const link = `${appUrl(req)}/resetpassword?token=${token}`;
-      await sendMail(user.email, "Reset your Online Boutique password", resetPasswordEmail(link));
+      await sendMail(user.email, "Reset your Jana's Boutique password", resetPasswordEmail(link));
     }
 
     // Same response either way so the endpoint can't be used to discover accounts.

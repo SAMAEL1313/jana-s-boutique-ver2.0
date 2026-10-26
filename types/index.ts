@@ -1,6 +1,7 @@
 export type Category =
   | "tops"
   | "bottoms"
+  | "vestments"
   | "dresses"
   | "perfumes"
   | "shoes"

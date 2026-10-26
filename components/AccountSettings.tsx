@@ -27,7 +27,7 @@ function Field({ label, ...props }: { label: string } & ComponentProps<"input">)
 function StatusText({ status }: { status: Status }) {
   if (!status) return null;
   return (
-    <p role="status" className={`text-sm ${status.ok ? "text-forest" : "text-accent"}`}>
+    <p role="status" className={`text-sm ${status.ok ? "text-moss" : "text-accent"}`}>
       {status.text}
     </p>
   );

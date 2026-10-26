@@ -1,4 +1,4 @@
-# Online Boutique
+# Jana's Boutique
 
 Online boutique storefront and admin dashboard built with **Next.js 15 (Pages Router)**, **TypeScript**, **Tailwind CSS v4** and **Supabase** (Postgres database + Storage for product photos).
 

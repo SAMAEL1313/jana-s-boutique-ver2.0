@@ -42,6 +42,9 @@ function sizeConfig(product: Product): SizeConfig {
       return { options: ["5", "5.5", "6", "6.5", "7", "7.5", "8", "8.5"], defaultSize: "6", label: "Ring Size" };
     case "tops":
     case "bottoms":
+    case "capes":
+    case "cloaks":
+    case "robes":
     case "dresses":
       return { options: ["Small", "Medium", "Large"], defaultSize: "Medium", label: "Size" };
     default:
@@ -89,7 +92,10 @@ export default function QuickViewModal({ product, onClose }: Props) {
       alert("Sorry, this product is out of stock.");
       return false;
     }
-    addToCart({ ...product, price: displayedPrice }, Math.min(qty, product.stock), size);
+    if (!addToCart({ ...product, price: displayedPrice }, Math.min(qty, product.stock), size)) {
+      router.push("/auth?form=login");
+      return false;
+    }
     return true;
   };
 
@@ -145,7 +151,7 @@ export default function QuickViewModal({ product, onClose }: Props) {
                     key={s}
                     onClick={() => setSize(s)}
                     className={`cursor-pointer rounded-sm border px-3 py-1 text-sm transition-colors ${
-                      size === s ? "border-accent bg-accent text-accent-ink" : "border-line hover:border-gold"
+                      size === s ? "border-forest bg-forest text-forest-ink" : "border-line hover:border-gold"
                     }`}
                   >
                     {s}
@@ -202,7 +208,24 @@ export default function QuickViewModal({ product, onClose }: Props) {
             )}
           </div>
 
-          {!currentUser?.isAdmin && (
+          {!currentUser ? (
+            <div>
+              <button className="btn w-full" onClick={() => router.push("/auth?form=login")}>
+                Sign in to Shop
+              </button>
+              <p className="mt-2 text-center text-sm text-muted">
+                You can browse freely — sign in or{" "}
+                <button
+                  onClick={() => router.push("/auth")}
+                  className="cursor-pointer text-accent underline-offset-4 hover:underline"
+                >
+                  create an account
+                </button>{" "}
+                to add items to your bag and order.
+              </p>
+            </div>
+          ) : (
+            !currentUser.isAdmin && (
             <div className="flex gap-3">
               <button className="btn flex-1" onClick={handleAddToBag} disabled={outOfStock || justAdded}>
                 {outOfStock ? "Out of Stock" : justAdded ? "Added to Bag ✓" : "Add to Bag"}
@@ -211,6 +234,7 @@ export default function QuickViewModal({ product, onClose }: Props) {
                 Buy Now
               </button>
             </div>
+            )
           )}
         </div>
       </div>

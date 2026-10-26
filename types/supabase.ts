@@ -172,6 +172,48 @@ export type Database = {
           },
         ];
       };
+      cart_items: {
+        Row: {
+          id: number;
+          user_id: number;
+          product_id: number;
+          size: string;
+          quantity: number;
+          created_at: string;
+        };
+        Insert: {
+          id?: number;
+          user_id: number;
+          product_id: number;
+          size?: string;
+          quantity: number;
+          created_at?: string;
+        };
+        Update: {
+          id?: number;
+          user_id?: number;
+          product_id?: number;
+          size?: string;
+          quantity?: number;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "cart_items_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "users";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "cart_items_product_id_fkey";
+            columns: ["product_id"];
+            isOneToOne: false;
+            referencedRelation: "products";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       order_items: {
         Row: {
           id: number;
@@ -235,6 +277,10 @@ export type Database = {
           p_items: Json;
         };
         Returns: number;
+      };
+      set_cart: {
+        Args: { p_user_id: number; p_items: Json };
+        Returns: undefined;
       };
       hit_rate_limit: {
         Args: { p_key: string; p_limit: number; p_window_seconds: number };

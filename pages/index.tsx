@@ -17,10 +17,10 @@ const featuredImages = [
 
 function Ornament() {
   return (
-    <div className="flex items-center justify-center gap-4 text-gold" aria-hidden>
-      <span className="h-px w-16 bg-gold/60" />
+    <div className="flex items-center justify-center gap-4 text-grove-gold" aria-hidden>
+      <span className="h-px w-16 bg-grove-gold/60" />
       <span className="font-display text-xl">❦</span>
-      <span className="h-px w-16 bg-gold/60" />
+      <span className="h-px w-16 bg-grove-gold/60" />
     </div>
   );
 }
@@ -45,7 +45,7 @@ export default function Home() {
       <section className="relative h-screen w-full overflow-hidden">
         <Image
           src="/images/homepage.jpg"
-          alt="Inside Online Boutique"
+          alt="Inside Jana's Boutique"
           fill
           className="object-cover object-center sepia-[0.25]"
           priority
@@ -90,15 +90,14 @@ export default function Home() {
       </section>
 
       {/* Our story */}
-      <section className="bg-surface px-6 py-28 text-center md:px-16">
-        <p className="eyebrow">Our Story</p>
+      <section className="bg-grove px-6 py-28 text-center text-grove-ink md:px-16">
+        <p className="eyebrow !text-grove-gold">Our Story</p>
         <h2 className="mt-4 font-display text-4xl font-medium md:text-5xl">A wardrobe with a narrative</h2>
         <div className="my-8">
           <Ornament />
         </div>
-        <p className="mx-auto max-w-2xl text-lg leading-relaxed text-muted md:text-xl">
-          Born from a passion for elegance and authenticity, our boutique brings you curated fashion pieces that embody
-          grace, quality, and timeless charm. Every collection tells a story — yours.
+        <p className="mx-auto max-w-2xl text-lg leading-relaxed text-grove-ink/80 md:text-xl">
+          Lorem Ipsum.
         </p>
       </section>
 
@@ -154,34 +153,34 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Footer — espresso in both themes */}
-      <footer className="bg-[#120d09] py-16 text-[#e6dccb]">
+      {/* Footer — deep forest in both themes */}
+      <footer className="border-t-2 border-grove-gold/40 bg-grove py-16 text-grove-ink">
         <div className="mx-auto grid max-w-6xl grid-cols-1 gap-12 px-6 md:grid-cols-3 md:px-12">
           <div className="flex flex-col items-start gap-4">
-            <Wordmark size="sm" />
-            <p className="text-[#e6dccb]/75">Timeless elegance and curated fashion pieces. Stay stylish, always.</p>
+            <Wordmark size="sm" onGrove />
+            <p className="text-grove-ink/75">Timeless elegance and curated fashion pieces. Stay stylish, always.</p>
           </div>
 
           <div className="flex flex-col items-start gap-3 md:items-center">
-            <h3 className="font-display text-sm font-semibold tracking-[0.3em] text-[#c9a467] uppercase">Contact Us</h3>
-            <div className="flex items-center gap-2 text-[#e6dccb]/85">
+            <h3 className="font-display text-sm font-semibold tracking-[0.3em] text-grove-gold uppercase">Contact Us</h3>
+            <div className="flex items-center gap-2 text-grove-ink/85">
               <EnvelopeIcon className="h-5 w-5" />
-              <span>jana.workplace.ph@gmail.com</span>
+              <span>bbonline.boutique@gmail.com</span>
             </div>
-            <div className="flex items-center gap-2 text-[#e6dccb]/85">
+            <div className="flex items-center gap-2 text-grove-ink/85">
               <PhoneIcon className="h-5 w-5" />
-              <span>+63 948 892 9764</span>
+              <span>+63 123 1456 789</span>
             </div>
           </div>
 
           <div className="flex flex-col items-start gap-3 md:items-end">
-            <h3 className="font-display text-sm font-semibold tracking-[0.3em] text-[#c9a467] uppercase">Payment Method</h3>
+            <h3 className="font-display text-sm font-semibold tracking-[0.3em] text-grove-gold uppercase">Payment Method</h3>
             <Image src="/images/GCASH.png" alt="GCash" width={120} height={48} className="h-10 w-auto rounded-sm object-contain" />
           </div>
         </div>
 
-        <div className="mx-auto mt-12 max-w-6xl border-t border-[#3b3026] px-6 pt-6 text-center text-sm text-[#e6dccb]/60">
-          © {new Date().getFullYear()} Online Boutique — All rights reserved.
+        <div className="mx-auto mt-12 max-w-6xl border-t border-grove-line px-6 pt-6 text-center text-sm text-grove-ink/60">
+          © {new Date().getFullYear()} Jana&apos;s Boutique — All rights reserved.
         </div>
       </footer>
     </div>

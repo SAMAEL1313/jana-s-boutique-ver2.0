@@ -31,9 +31,9 @@ export default function AdminLayout({ title = "Admin Dashboard", children }: { t
   return (
     <div className="flex min-h-screen bg-paper text-ink">
       {/* Sidebar */}
-      <aside className="fixed top-0 left-0 flex h-full w-60 flex-col border-r border-line bg-surface">
-        <Link href="/admindashboard" className="flex justify-center border-b border-line py-6" aria-label="Dashboard">
-          <Wordmark size="sm" />
+      <aside className="fixed top-0 left-0 flex h-full w-60 flex-col bg-grove text-grove-ink">
+        <Link href="/admindashboard" className="flex justify-center border-b border-grove-line py-6" aria-label="Dashboard">
+          <Wordmark size="sm" onGrove />
         </Link>
         <nav className="flex flex-col gap-1 px-4 py-6">
           {NAV_ITEMS.map((item) => {
@@ -43,7 +43,9 @@ export default function AdminLayout({ title = "Admin Dashboard", children }: { t
                 key={item.path}
                 href={item.path}
                 className={`rounded-sm border-l-2 px-4 py-2.5 font-display text-lg transition-colors ${
-                  active ? "border-gold bg-surface-2 text-ink" : "border-transparent text-muted hover:bg-surface-2 hover:text-ink"
+                  active
+                    ? "border-grove-gold bg-white/10 text-grove-ink"
+                    : "border-transparent text-grove-ink/70 hover:bg-white/5 hover:text-grove-ink"
                 }`}
               >
                 {item.label}

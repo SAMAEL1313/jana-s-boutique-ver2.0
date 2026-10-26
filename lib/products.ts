@@ -6,6 +6,7 @@ export const SHIPPING_COST = 100;
 export const CATEGORIES: Record<Category, string[]> = {
   tops: [],
   bottoms: [],
+  vestments: ["capes", "cloaks", "robes"],
   dresses: [],
   perfumes: [],
   shoes: ["sandals", "heels", "flats"],

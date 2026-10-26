@@ -73,8 +73,12 @@ export default apiHandler({
       if (saveError) console.error("Failed to save shipping address:", saveError);
     }
 
+    // The bought items are no longer in the bag.
+    const { error: cartError } = await supabase.from("cart_items").delete().eq("user_id", user.id);
+    if (cartError) console.error("Failed to clear cart:", cartError);
+
     // The order is already saved; a failed receipt email shouldn't fail checkout.
-    sendMail(dto.email, `Your Online Boutique receipt — ${dto.orderNumber}`, receiptEmail(dto)).catch((err) =>
+    sendMail(dto.email, `Your Jana's Boutique receipt — ${dto.orderNumber}`, receiptEmail(dto)).catch((err) =>
       console.error("Failed to send receipt:", err)
     );
 

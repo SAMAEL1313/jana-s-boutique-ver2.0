@@ -47,6 +47,11 @@ export default function Checkout() {
 
   const setField = (field: keyof ShippingInfo) => (value: string) => setInfo((prev) => ({ ...prev, [field]: value }));
 
+  // Guests can browse but must sign in to order.
+  useEffect(() => {
+    if (!authLoading && !currentUser) router.replace("/auth?form=login");
+  }, [authLoading, currentUser, router]);
+
   // Pre-fill the address saved on the account; offer to save one if there isn't any.
   useEffect(() => {
     if (!currentUser || currentUser.isAdmin) return;
@@ -198,9 +203,9 @@ export default function Checkout() {
                       }`}
                     >
                       <span
-                        className={`flex h-4 w-4 items-center justify-center rounded-full border ${selected ? "border-accent bg-accent" : "border-line"}`}
+                        className={`flex h-4 w-4 items-center justify-center rounded-full border ${selected ? "border-forest bg-forest" : "border-line"}`}
                       >
-                        {selected && <span className="h-1.5 w-1.5 rounded-full bg-accent-ink" />}
+                        {selected && <span className="h-1.5 w-1.5 rounded-full bg-forest-ink" />}
                       </span>
                       <span className="relative h-8 w-20 overflow-hidden rounded-sm">
                         <Image src={option.logo} alt={option.name} fill sizes="80px" className="object-contain" />
@@ -215,7 +220,7 @@ export default function Checkout() {
                   type="checkbox"
                   checked={saveAddress}
                   onChange={(e) => setSaveAddress(e.target.checked)}
-                  className="accent-[var(--accent)]"
+                  className="accent-[var(--forest)]"
                 />
                 <span className="text-sm">Save this address to my account for next time</span>
               </label>
@@ -273,7 +278,7 @@ export default function Checkout() {
           <div className="card w-full max-w-sm overflow-hidden shadow-2xl">
             <div className="border-b border-line bg-surface-2 p-5 text-center">
               <h2 className="font-display text-2xl font-medium">Pay with GCash</h2>
-              <span className="text-sm text-muted">Online Boutique | janas.work.ph</span>
+              <span className="text-sm text-muted">Jana&apos;s Boutique | janas.work.ph</span>
             </div>
 
             <div className="space-y-4 p-6 text-center">

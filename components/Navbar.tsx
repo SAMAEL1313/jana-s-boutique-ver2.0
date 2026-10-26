@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { FaChevronDown, FaSearch, FaShoppingBag, FaUserCircle } from "react-icons/fa";
+import { FaChevronDown, FaSearch, FaShoppingBag } from "react-icons/fa";
+import AccountMenu from "@/components/AccountMenu";
 import CartSidebar from "@/components/CartSidebar";
 import SearchSideBar from "@/components/SearchSideBar";
 import ThemeToggle from "@/components/ThemeToggle";
@@ -84,25 +85,20 @@ export default function Navbar() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const handleProfileClick = () => {
-    if (!currentUser) router.push("/auth");
-    else router.push(isAdmin ? "/admindashboard" : "/profile");
-  };
-
   return (
     <nav className="fixed top-0 left-0 z-50 w-full border-b border-line bg-paper/90 text-ink backdrop-blur-md transition-colors">
       {/* Wordmark */}
       <div
         className={`flex justify-center overflow-hidden transition-all duration-500 ${showTitle ? "max-h-24 pt-5 opacity-100" : "max-h-0 pt-0 opacity-0"}`}
       >
-        <Link href={isAdmin ? "/admindashboard" : "/"} aria-label="Online Boutique home">
+        <Link href={isAdmin ? "/admindashboard" : "/"} aria-label="Jana's Boutique home">
           <Wordmark />
         </Link>
       </div>
 
       {/* Main bar */}
       <div className="mx-auto flex max-w-[1400px] items-center justify-between px-6 py-4">
-        <div className="flex w-28 items-center">
+        <div className="flex w-32 items-center">
           <FaSearch size={18} className={iconClass} onClick={() => setIsSearchOpen(true)} aria-label="Search" />
         </div>
 
@@ -113,6 +109,14 @@ export default function Navbar() {
           <Link href="/bottoms" className={linkClass}>
             Bottoms
           </Link>
+          <NavDropdown
+            label="Vestments"
+            items={[
+              { href: "/vestments/capes", label: "Capes" },
+              { href: "/vestments/cloaks", label: "Cloaks" },
+              { href: "/vestments/robes", label: "Robes" },
+            ]}
+          />
           <NavDropdown
             label="Shoes"
             items={[
@@ -139,11 +143,16 @@ export default function Navbar() {
           </Link>
         </div>
 
-        <div className="flex w-28 items-center justify-end gap-5">
+        <div className="flex w-32 items-center justify-end gap-5">
           <ThemeToggle />
-          <FaUserCircle size={22} className={iconClass} onClick={handleProfileClick} aria-label="Account" />
+          <AccountMenu onOpenBag={() => setIsCartOpen(true)} />
           {!isAdmin && (
-            <button className="relative cursor-pointer" onClick={() => setIsCartOpen(true)} aria-label="Open cart">
+            <button
+              className="relative cursor-pointer"
+              // Guests can browse, but the bag needs an account.
+              onClick={() => (currentUser ? setIsCartOpen(true) : router.push("/auth?form=login"))}
+              aria-label="Open cart"
+            >
               <FaShoppingBag size={20} className={iconClass} />
               {cartItems.length > 0 && (
                 <span className="absolute -top-2 -right-2.5 flex h-4.5 min-w-4.5 items-center justify-center rounded-full bg-accent px-1 text-[10px] text-accent-ink">

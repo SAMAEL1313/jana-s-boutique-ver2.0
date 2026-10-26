@@ -6,7 +6,9 @@
 
 /* ------------------------------------------------------------------
    Dark academia palette
-   Light: parchment & espresso ink. Dark: library at night.
+   Light: parchment & espresso ink. Dark: a green-lit library at night.
+   Forest green carries structure (buttons, bands, sidebar); burgundy is
+   for highlights (prices, links, badges, errors); gold for ornament.
    ------------------------------------------------------------------ */
 :root {
   --paper: #f3ecdf;
@@ -19,22 +21,39 @@
   --accent-hover: #551b1b;
   --accent-ink: #fbf5ea;
   --gold: #8f6f3b;
-  --forest: #3f4b3b;
+  /* Forest: fill for primary buttons, with --forest-ink text on it */
+  --forest: #2e4a37;
+  --forest-hover: #233a2b;
+  --forest-ink: #f3ecdf;
+  /* Moss: green text on paper/surface (success states, small labels) */
+  --moss: #3d6b4c;
+  /* Grove: deep green bands (story section, footer, admin sidebar) */
+  --grove: #1c2b21;
+  --grove-ink: #e9e2cf;
+  --grove-line: #33473a;
+  --grove-gold: #c9a467;
   color-scheme: light;
 }
 
 .dark {
-  --paper: #14100c;
-  --surface: #1e1813;
-  --surface-2: #2a221a;
-  --ink: #ece2cf;
-  --muted: #a8977e;
-  --line: #3b3026;
+  --paper: #0f1411;
+  --surface: #161d18;
+  --surface-2: #1f2922;
+  --ink: #ece4d2;
+  --muted: #a39d86;
+  --line: #2c3a30;
   --accent: #a84f48;
   --accent-hover: #bd615a;
   --accent-ink: #fbf5ea;
   --gold: #c9a467;
-  --forest: #8a9b84;
+  --forest: #3a5f46;
+  --forest-hover: #2f5039;
+  --forest-ink: #f3ecdf;
+  --moss: #8fbf9c;
+  --grove: #18261c;
+  --grove-ink: #e9e2cf;
+  --grove-line: #2f4436;
+  --grove-gold: #c9a467;
   color-scheme: dark;
 }
 
@@ -50,6 +69,13 @@
   --color-accent-ink: var(--accent-ink);
   --color-gold: var(--gold);
   --color-forest: var(--forest);
+  --color-forest-hover: var(--forest-hover);
+  --color-forest-ink: var(--forest-ink);
+  --color-moss: var(--moss);
+  --color-grove: var(--grove);
+  --color-grove-ink: var(--grove-ink);
+  --color-grove-line: var(--grove-line);
+  --color-grove-gold: var(--grove-gold);
 
   --font-serif: var(--font-body), "EB Garamond", Georgia, serif;
   --font-display: var(--font-heading), "Cormorant Garamond", Georgia, serif;
@@ -65,7 +91,7 @@ body {
    Reusable building blocks
    ------------------------------------------------------------------ */
 @utility btn {
-  @apply inline-flex cursor-pointer items-center justify-center gap-2 rounded-sm bg-accent px-5 py-2.5 font-display text-sm font-semibold tracking-[0.15em] text-accent-ink uppercase transition-colors hover:bg-accent-hover disabled:cursor-not-allowed disabled:opacity-60;
+  @apply inline-flex cursor-pointer items-center justify-center gap-2 rounded-sm bg-forest px-5 py-2.5 font-display text-sm font-semibold tracking-[0.15em] text-forest-ink uppercase transition-colors hover:bg-forest-hover focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-paper focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-60;
 }
 
 @utility btn-outline {
@@ -110,6 +136,25 @@ body {
 .animate-slideDown { animation: slideDown 0.3s ease forwards; }
 .animate-slideUp { animation: slideUp 0.3s ease forwards; }
 .animate-zoom { animation: zoomIn 0.3s ease forwards; }
+
+/* Splash screen: the wordmark rises in, then a gold rule draws beneath it */
+@keyframes splashRise {
+  from { transform: translateY(12px); opacity: 0; letter-spacing: 0.3em; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes splashRule {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+
+.animate-splashRise { animation: splashRise 0.9s ease-out both; }
+.animate-splashRule { animation: splashRule 0.8s ease-in-out 0.5s both; }
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-splashRise,
+  .animate-splashRule { animation: none; }
+}
 
 /* Themed scrollbar for scrollable panels */
 .custom-scrollbar { scrollbar-width: thin; scrollbar-color: var(--gold) transparent; }
